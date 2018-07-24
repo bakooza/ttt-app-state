@@ -15,6 +15,7 @@ h1 {
     font-family: cursive;
     margin: 10px 0;
 }
+
 .cell {
     display: inline-block;
     border: 1px solid black;

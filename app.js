@@ -19,7 +19,6 @@ const startNewGame = function() {
       state.board[i][j] = '';
     }
   }
-  console.log(state.board);
 };
 
 const findRowNumber = function(cell) {
@@ -27,18 +26,16 @@ const findRowNumber = function(cell) {
 };
 
 const findIndex = function(cell) {
-  return $(cell).attr('id');
+  return $(cell).attr('class').split(' ').pop();
 };
 
 const changeValue = function(rowNumber, index) {
   let currentCellValue = state.board[rowNumber][index];
   if (clickCounter % 2 === 0 && !(currentCellValue)) {
     state.board[rowNumber][index] = 'X';
-    console.log('in x');
     clickCounter++;
   } else if (clickCounter % 2 !== 0 && !(currentCellValue)) {
     state.board[rowNumber][index] = 'O';
-    console.log('in o');
     clickCounter++;
   }
 };
@@ -49,11 +46,11 @@ const changeValue = function(rowNumber, index) {
 const renderElement = function(rowNumber, index) {
   const value  = state.board[rowNumber][index];
   if (value !== '') {
-    return `<div class="cell" id="${index}">
+    return `<div class="cell ${index}">
           <p>${value}</p>
           </div>`;
   } else {
-    return `<div class="cell" id="${index}">
+    return `<div class="cell ${index}">
           <p></p>
           </div>`;
   }
@@ -83,52 +80,60 @@ const render = function(){
 const listenforTic = function() {
   $('.board').on('click', '.cell', function(event){
     if (state.gameOver === false) {
-      console.log('beginning state of board: ' + state.board);
       const rowNumber = findRowNumber(event.target);
       const index = findIndex(event.target);
       changeValue(rowNumber, index);
-      console.log('current state of board: ' + state.board);
       render();
     }
     const current = state.board;
     for (let i = 0; i<3; i++) {
+      // row matching, column changes (j)
       if (current[i][0] === current[i][1] && current[i][1] === current[i][2] && current[i][0] !== '') {
         state.gameOver = true;
+        for (let j = 0; j<3; j++) {
+          console.log('in row matching');
+          $(`#${i}`).find(`.${j}`).addClass('win');
+        }
       }
     }
-    for (let j = 0; j<3; j++) {
-      if (current[0][j] === current[1][j] && current[1][j] === current[2][j] && current[0][j] !== '') {
+    // column matching, row changes (j)
+    for (let i = 0; i<3; i++) {
+      if (current[0][i] === current[1][i] && current[1][i] === current[2][i] && current[0][i] !== '') {
         state.gameOver = true;
+        for (let j = 0; j<3; j++) {
+          $(`#${j}`).find(`.${i}`).addClass('win');
+        }
       }
     }
     if (current[0][0] === current[1][1] && current[1][1] === current[2][2] && current[0][0] !== '') {
       state.gameOver = true;
+      for (let j = 0; j<3; j++) {
+        $(`#${j}`).find(`.${j}`).addClass('win');
+      }
     }
     if (current[0][2] === current[1][1] && current[1][1] === current[2][0] && current[0][2] !== '') {
       state.gameOver = true;
+      $('#0').find('.2').addClass('win');
+      $('#1').find('.1').addClass('win');
+      $('#2').find('.0').addClass('win');
     }
   });
+  render();
   
 };
 
 const listenForNewGame = function() {
   $('#new-game').click(function() {
     startNewGame();
-    render();
     state.gameOver = false;
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j<3; j++) {
+        $(`#${i}`).find(`.${j}`).removeClass('win');
+      }
+    }
+    render();
   });
 };
-
-/*const listeners = (function() {
-
-}());
-*/
-
-// Upon loading, I can immediately click cells to alternately place Xs and Os on each click
-// I cannot change a cell after it has a value inside it
-// I can see when a winning line has been created
-// No further moves can be played from this point
-// I can click "New Game" at any time to reset the board
 
 $(function() {
   listenforTic();
@@ -136,40 +141,3 @@ $(function() {
   render();
 });
 
-/* 
-<!-- The following HTML should be removed and dynamically created by a render function -->
-            <div class="row1">
-                <div class="cell" id="0">
-                    <p>&nbsp;</p>
-                </div>
-                <div class="cell" id="1">
-                    <p>&nbsp;</p>
-                </div>
-                <div class="cell" id="2">
-                    <p>&nbsp;</p>
-                </div>
-            </div>
-            <div class="row2">
-                <div class="cell" id="0">
-                    <p>&nbsp;</p>
-                </div>
-                <div class="cell" id="1">
-                    <p>&nbsp;</p>
-                </div>
-                <div class="cell" id="2">
-                    <p>&nbsp;</p>
-                </div>
-            </div>
-            <div class="row3">
-                <div class="cell" id="0">
-                    <p>&nbsp;</p>
-                </div>
-                <div class="cell" id="1">
-                    <p>&nbsp;</p>
-                </div>
-                <div class="cell" id="2">
-                    <p>&nbsp;</p>
-                </div>
-            </div>
-            <!-- Remove all HTML above this line, and dynamically generate with render function -->
-  */
